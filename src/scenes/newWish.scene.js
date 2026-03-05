@@ -1,6 +1,7 @@
 const { Scenes, Markup } = require('telegraf');
 const { createWish } = require('../services/db');
 const { postWish }   = require('../services/channelPoster');
+const { log } = require('../services/logger');
 
 const cancelBtn = Markup.inlineKeyboard([
   [Markup.button.callback('⏩ Skip', 'SKIP'), Markup.button.callback('❌ Cancel', 'CANCEL')],
@@ -94,7 +95,7 @@ const newWishScene = new Scenes.WizardScene(
         parse_mode: 'Markdown',
       });
     } catch (err) {
-      console.error('[channelPoster]', err.message);
+      log.error('[channelPoster]', err.message);
       await ctx.reply('⚠️ Wish saved locally, but failed to post. Is the bot an admin in the channel?');
     }
 

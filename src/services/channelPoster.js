@@ -1,16 +1,9 @@
 const CHANNEL_ID = process.env.CHANNEL_ID;
-
-// ─── tiny logger so every line shows the source ───────────────────────────
-const log = {
-  info:  (...args) => console.log ('[channelPoster] ℹ️ ', ...args),
-  ok:    (...args) => console.log ('[channelPoster] ✅ ', ...args),
-  warn:  (...args) => console.warn('[channelPoster] ⚠️ ', ...args),
-  error: (...args) => console.error('[channelPoster] ❌ ', ...args),
-};
+const { log } = require('../services/logger');
 
 // ─── run this once at startup ──────────────────────────────────────────────
 const checkChannel = async (telegram) => {
-  log.info(`Checking CHANNEL_ID="${CHANNEL_ID}" …`);
+  log.info(`Checking CHANNEL_ID="${CHANNEL_ID}"…`);
 
   // 1. Is CHANNEL_ID even set in .env?
   if (!CHANNEL_ID) {

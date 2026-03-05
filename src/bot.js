@@ -4,6 +4,7 @@ const { newWishScene }  = require('./scenes/newWish.scene');
 const { registerCommands } = require('./commands');
 const { auth } = require('./middleware/auth');
 const { checkChannel } = require('./services/channelPoster');
+const { log } = require('./services/logger');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -32,7 +33,7 @@ bot.command('start', (ctx) =>
 );
 
 const startBot = async () => {
-  console.log('🤖 Wishlist bot is running!');
+  log.info('🤖 Wishlist bot is running!');
   await checkChannel(bot.telegram);  // runs first, bot.telegram is ready right after new Telegraf()
   bot.launch();                      // starts polling — intentionally NOT awaited
 };
