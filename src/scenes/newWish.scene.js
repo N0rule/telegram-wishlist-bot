@@ -1,7 +1,7 @@
 const { Scenes, Markup } = require('telegraf');
 const { createWish } = require('../services/db');
 const { postWish }   = require('../services/channelPoster');
-const { log } = require('../services/logger');
+const { log } = require('../utils/logger');
 
 const cancelBtn = Markup.inlineKeyboard([
   [Markup.button.callback('⏩ Skip', 'SKIP'), Markup.button.callback('❌ Cancel', 'CANCEL')],

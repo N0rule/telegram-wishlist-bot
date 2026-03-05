@@ -1,5 +1,5 @@
 const CHANNEL_ID = process.env.CHANNEL_ID;
-const { log } = require('../services/logger');
+const { log } = require('../utils/logger');
 
 // ─── run this once at startup ──────────────────────────────────────────────
 const checkChannel = async (telegram) => {
@@ -91,7 +91,7 @@ const postWish = async (telegram, { username, userId, name, description, photoId
       });
     }
 
-    log.ok(`Wish posted. Channel message_id=${sent.message_id}`);
+    log.ok(`Wish posted. Id=${sent.message_id}`);
     return sent.message_id; // wish id === channel message_id
   } catch (err) {
     log.error(`Failed to post: ${err.message}`);
@@ -102,10 +102,10 @@ const postWish = async (telegram, { username, userId, name, description, photoId
 const deleteWishPost = async (telegram, messageId) => {
   try {
     await telegram.deleteMessage(CHANNEL_ID, messageId);
-    log.ok(`Deleted channel message_id=${messageId}`);
+    log.ok(`Wish deleted. Id=${messageId}`);
   } catch (err) {
     // Message might already be manually deleted — don't crash
-    log.warn(`Could not delete message_id=${messageId}: ${err.message}`);
+    log.warn(`Could not delete Wish. Id=${messageId}: ${err.message}`);
   }
 };
 
