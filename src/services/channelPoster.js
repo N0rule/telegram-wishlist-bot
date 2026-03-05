@@ -81,19 +81,36 @@ const postWish = async (ctx, wish) => {
   ].filter(l => l !== null).join('\n');
 
   try {
+    let sentMessage;
+
     if (wish.photoId) {
-      await ctx.telegram.sendPhoto(CHANNEL_ID, wish.photoId, {
+      sentMessage = await ctx.telegram.sendPhoto(CHANNEL_ID, wish.photoId, {
         caption:    text,
         parse_mode: 'Markdown',
       });
     } else {
-      await ctx.telegram.sendMessage(CHANNEL_ID, text, { parse_mode: 'Markdown' });
+      sentMessage = await ctx.telegram.sendMessage(CHANNEL_ID, text, {
+        parse_mode: 'Markdown',
+      });
     }
-    log.ok(`Wish id=${wish.id} posted successfully.`);
+
+    log.ok(`Wish id=${wish.id} posted. Channel message_id=${sentMessage.message_id}`);
+    return sentMessage.message_id; // ← return it so we can save it
   } catch (err) {
     log.error(`Failed to post wish id=${wish.id}: ${err.message}`);
-    throw err; // bubble up so bot.js can tell the user
+    throw err;
+  }
+};
+// ─── called every time someone deletes a wish ─────────────────────────────
+const deleteWishPost = async (telegram, messageId) => {
+  try {
+    await telegram.deleteMessage(CHANNEL_ID, messageId);
+    log.ok(`Deleted channel message_id=${messageId}`);
+  } catch (err) {
+    // Message might already be manually deleted — don't crash
+    log.warn(`Could not delete message_id=${messageId}: ${err.message}`);
   }
 };
 
-module.exports = { checkChannel, postWish };
+module.exports = { checkChannel, postWish, deleteWishPost };
+

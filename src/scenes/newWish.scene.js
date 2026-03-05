@@ -1,5 +1,5 @@
 const { Scenes, Markup } = require('telegraf');
-const { createWish } = require('../services/db');
+const { createWish, updateWish } = require('../services/db');
 const { postWish }   = require('../services/channelPoster');
 const { log } = require('../services/logger');
 
@@ -87,10 +87,16 @@ const newWishScene = new Scenes.WizardScene(
       name,
       description,
       photoId,
+      messageId: null,   // will be set by postWish()
     });
 
     try {
-      await postWish(ctx, wish);
+      const channelMessageId = await postWish(ctx, wish);
+
+      // Patch the saved wish with the real messageId
+      wish.messageId = channelMessageId;
+      updateWish(wish.id, { messageId: channelMessageId });
+      
       await ctx.reply(`✅ Wish *"${name}"* posted to channel!\n🆔 ID: \`${wish.id}\``, {
         parse_mode: 'Markdown',
       });
