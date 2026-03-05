@@ -1,5 +1,5 @@
 const { Scenes, Markup } = require('telegraf');
-const { createWish, updateWish } = require('../services/db');
+const { createWish } = require('../services/db');
 const { postWish }   = require('../services/channelPoster');
 const { log } = require('../services/logger');
 
@@ -81,29 +81,28 @@ const newWishScene = new Scenes.WizardScene(
 
     const { name, description = null, photoId = null } = ctx.wizard.state.wish;
 
-    const wish = createWish({
-      userId:      ctx.from.id,
-      username:    ctx.from.username || ctx.from.first_name,
+    const data = {
+      userId:   ctx.from.id,
+      username: ctx.from.username || ctx.from.first_name,
       name,
       description,
       photoId,
-      messageId: null,   // will be set by postWish()
-    });
+    };
 
     try {
-      const channelMessageId = await postWish(ctx, wish);
+      // 1. Post to channel first → get the message_id
+      const messageId = await postWish(ctx.telegram, data);
 
-      // Patch the saved wish with the real messageId
-      wish.messageId = channelMessageId;
-      updateWish(wish.id, { messageId: channelMessageId });
+      // 2. Save to DB using messageId as the id
+      const wish = createWish({ id: messageId, ...data });
       
       await ctx.reply(`✅ Wish *"${name}"* posted to channel!\n🆔 ID: \`${wish.id}\``, {
         parse_mode: 'Markdown',
       });
     } catch (err) {
-      log.error('[channelPoster]', err.message);
-      await ctx.reply('⚠️ Wish saved locally, but failed to post. Is the bot an admin in the channel?');
-    }
+    log.error('[newWish]', err.message);
+    await ctx.reply('⚠️ Failed to post. Is the bot an admin in the channel?');
+  }
 
     return ctx.scene.leave();
   }

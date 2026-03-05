@@ -14,14 +14,7 @@ const removeCommand = (bot) => {
     if (wish.userId !== ctx.from.id)
       return ctx.reply('⛔ You can only remove your own wishes.');
 
-    // 1. Delete from channel (if we have the message ID)
-    if (wish.messageId) {
-      await deleteWishPost(ctx.telegram, wish.messageId);
-    } else {
-      await ctx.reply('⚠️ No channel message linked — removing from list only.');
-    }
-
-    // 2. Delete from DB
+    await deleteWishPost(ctx.telegram, wish.id);
     removeWish(id, ctx.from.id);
 
     return ctx.reply(`✅ Wish *"${wish.name}"* removed.`, { parse_mode: 'Markdown' });

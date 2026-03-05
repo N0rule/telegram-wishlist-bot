@@ -67,37 +67,34 @@ const checkChannel = async (telegram) => {
 };
 
 // ─── called every time someone creates a wish ─────────────────────────────
-const postWish = async (ctx, wish) => {
-  log.info(`Posting wish id=${wish.id} ("${wish.name}") by @${wish.username} …`);
+const postWish = async (telegram, { username, userId, name, description, photoId }) => {
+  log.info(`Posting wish "${name}" by @${username} …`);
 
   const text = [
     `🎁 *New Wish!*`,
     ``,
-    `👤 *By:* @${wish.username || wish.userId}`,
-    `📦 *Wish:* ${wish.name}`,
-    wish.description ? `📝 *About:* ${wish.description}` : null,
-    ``,
-    `🆔 ID: \`${wish.id}\``,
+    `👤 *By:* @${username || userId}`,
+    `📦 *Wish:* ${name}`,
+    description ? `📝 *About:* ${description}` : null,
   ].filter(l => l !== null).join('\n');
 
   try {
-    let sentMessage;
-
-    if (wish.photoId) {
-      sentMessage = await ctx.telegram.sendPhoto(CHANNEL_ID, wish.photoId, {
+    let sent;
+    if (photoId) {
+      sent = await telegram.sendPhoto(CHANNEL_ID, photoId, {
         caption:    text,
         parse_mode: 'Markdown',
       });
     } else {
-      sentMessage = await ctx.telegram.sendMessage(CHANNEL_ID, text, {
+      sent = await telegram.sendMessage(CHANNEL_ID, text, {
         parse_mode: 'Markdown',
       });
     }
 
-    log.ok(`Wish id=${wish.id} posted. Channel message_id=${sentMessage.message_id}`);
-    return sentMessage.message_id; // ← return it so we can save it
+    log.ok(`Wish posted. Channel message_id=${sent.message_id}`);
+    return sent.message_id; // wish id === channel message_id
   } catch (err) {
-    log.error(`Failed to post wish id=${wish.id}: ${err.message}`);
+    log.error(`Failed to post: ${err.message}`);
     throw err;
   }
 };

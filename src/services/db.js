@@ -14,16 +14,15 @@ const read = () => {
 
 const write = (data) => fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 
-const createWish = ({ userId, username, name, description, photoId, messageId }) => {
+const createWish = ({ id, userId, username, name, description, photoId }) => {
   const wishes = read();
   const wish = {
-    id: Date.now(),        // timestamp-based ID, unique enough
+    id,       // Telegram message_id
     userId,
     username,
     name,
     description: description || null,
     photoId:     photoId     || null,
-    messageId:   messageId   || null,     // will be set by channelPoster.js
     createdAt:   new Date().toISOString(),
   };
   wishes.push(wish);
@@ -45,15 +44,6 @@ const removeWish  = (id, userId) => {
   return true;
 };
 
-const updateWish = (id, patch) => {
-  const wishes = read();
-  const idx = wishes.findIndex(w => w.id === id);
-  if (idx === -1) return false;
-  wishes[idx] = { ...wishes[idx], ...patch };
-  write(wishes);
-  return true;
-};
-
 const getWishById = (id) => read().find(w => w.id === id) ?? null;
 
-module.exports = { createWish, listWishes, removeWish, getWishById, updateWish };
+module.exports = { createWish, listWishes, removeWish, getWishById };
