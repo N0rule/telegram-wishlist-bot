@@ -4,7 +4,8 @@ const { newWishScene }  = require('./scenes/newWish.scene');
 const { registerCommands } = require('./commands');
 const { auth } = require('./middleware/auth');
 const { checkChannel } = require('./services/channelPoster');
-const { log } = require('./utils/logger');
+const { createLogger } = require('./utils/logger');
+const log = createLogger('bot');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 

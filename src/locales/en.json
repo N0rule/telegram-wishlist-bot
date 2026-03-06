@@ -1,0 +1,38 @@
+{
+  "newWish": {
+    "stepName":        "🎁 *New Wish — Step 1 / 3*\n\nWhat is the *name* of your wish?",
+    "stepDescription": "📝 *Step 2 / 3* — Add a *description* (or skip):",
+    "stepPhoto":       "📷 *Step 3 / 3* — Send a *photo* (or skip):",
+    "btnSkip":         "⏩ Skip",
+    "btnCancel":       "❌ Cancel",
+    "cancelled":       "❌ Cancelled.",
+    "errName":         "⚠️ Please type the wish name.",
+    "errDescription":  "⚠️ Please send text or tap Skip.",
+    "errPhoto":        "⚠️ Please send a photo or tap Skip.",
+    "posted":          "✅ Wish *\"{name}\"* posted!\n🆔 ID: `{id}`",
+    "errPost":         "⚠️ Failed to post. Is the bot an admin in the channel?"
+  },
+  "list": {
+    "empty":     "📭 You have no wishes yet. Try /newwish!",
+    "emptyAll":  "📭 No wishes yet!",
+    "emptyUser": "📭 No wishes found for @{username}.",
+    "titleMine": "My Wishes",
+    "titleAll":  "All Wishes",
+    "titleUser": "Wishes by @{username}"
+  },
+  "remove": {
+    "usage":    "⚠️ Usage: /remove <wish\\_id>",
+    "notFound": "❌ No wish with ID `{id}`.",
+    "notOwner": "⛔ You can only remove your own wishes.",
+    "success":  "✅ Wish *\"{name}\"* removed."
+  },
+  "start": {
+    "welcome": "👋 *Wishlist Bot*\n\n/newwish — Add a new wish 🎁\n/list — View your wishes 📋\n/list @username — View someone's wishes 👤\n/listall — View everyone's wishes 🌍\n/remove <id> — Remove a wish ❌"
+  },
+  "channel": {
+    "title": "🎁 *New Wish!*",
+    "by":    "👤 *By:* @{username}",
+    "wish":  "📦 *Wish:* {name}",
+    "about": "📝 *About:* {description}"
+  }
+}

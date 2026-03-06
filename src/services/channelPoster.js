@@ -1,6 +1,7 @@
 const CHANNEL_ID = process.env.CHANNEL_ID;
-const { log } = require('../utils/logger');
-
+const { createLogger } = require('../utils/logger');
+const log = createLogger('channelPoster');
+const { t } = require('../utils/lang');
 // ─── run this once at startup ──────────────────────────────────────────────
 const checkChannel = async (telegram) => {
   log.info(`Checking CHANNEL_ID="${CHANNEL_ID}"…`);
@@ -71,12 +72,12 @@ const postWish = async (telegram, { username, userId, name, description, photoId
   log.info(`Posting wish "${name}" by @${username} …`);
 
   const text = [
-    `🎁 *New Wish!*`,
+    t('channel.title'),
     ``,
-    `👤 *By:* @${username || userId}`,
-    `📦 *Wish:* ${name}`,
-    description ? `📝 *About:* ${description}` : null,
-  ].filter(l => l !== null).join('\n');
+    t('channel.by',    { username: username || userId }),
+    t('channel.wish',  { name }),
+    description ? t('channel.about', { description }) : null,
+  ].filter(Boolean).join('\n');
 
   try {
     let sent;

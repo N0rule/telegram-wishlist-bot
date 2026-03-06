@@ -1,5 +1,6 @@
 const { listWishes } = require('../services/db');
 const { formatList } = require('../utils/formatList');
+const { t } = require('../utils/lang');
 
 const listCommand = (bot) => {
   // /list          → your own wishes
@@ -12,15 +13,14 @@ const listCommand = (bot) => {
 
     if (mention) {
       wishes = wishes.filter(w => w.username?.toLowerCase() === mention);
-      if (!wishes.length)
-        return ctx.reply(`📭 No wishes found for @${mention}.`);
-      return ctx.reply(formatList(wishes, `Wishes by @${mention}`), { parse_mode: 'Markdown' });
+      if (!wishes.length) return ctx.reply(t('list.emptyUser', { username: mention }));
+      return ctx.reply(formatList(wishes, t('list.titleUser', { username: mention })), { parse_mode: 'Markdown' });
     }
 
     wishes = wishes.filter(w => w.userId === ctx.from.id);
     if (!wishes.length)
-      return ctx.reply('📭 You have no wishes yet. Try /newwish!');
-    return ctx.reply(formatList(wishes, 'My Wishes'), { parse_mode: 'Markdown' });
+      return ctx.reply(t('list.empty'));
+    return ctx.reply(formatList(wishes, t('list.titleMine')), { parse_mode: 'Markdown' });
   });
 };
 
