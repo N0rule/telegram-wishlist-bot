@@ -21,17 +21,6 @@ bot.use(auth);
 // Register all commands
 registerCommands(bot);
 
-bot.command('start', (ctx) =>
-  ctx.reply(
-    '👋 *Wishlist Bot*\n\n' +
-    '/newwish — Add a new wish 🎁\n' +
-    '/list — View your wishes 📋\n' +
-    '/list all — View everyone\'s wishes 🌍\n' +
-    '/remove <id> — Remove a wish ❌',
-    { parse_mode: 'Markdown' }
-  )
-);
-
 const startBot = async () => {
   log.info('🤖 Wishlist bot is running!');
   await checkChannel(bot.telegram);  // runs first, bot.telegram is ready right after new Telegraf()
