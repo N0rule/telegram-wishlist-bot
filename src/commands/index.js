@@ -2,7 +2,7 @@ const { startCommand }   = require('./start');
 const { newWishCommand } = require('./newwish');
 const { listCommand }    = require('./list');
 const { listAllCommand }    = require('./listall');
-const { removeCommand }  = require('./remove');
+const { removeWishCommand }  = require('./removewish');
 
 
 const registerCommands = (bot) => {
@@ -10,7 +10,7 @@ const registerCommands = (bot) => {
   newWishCommand(bot);
   listCommand(bot);
   listAllCommand(bot);
-  removeCommand(bot);
+  removeWishCommand(bot);
   // ← drop new commands here
 };
 

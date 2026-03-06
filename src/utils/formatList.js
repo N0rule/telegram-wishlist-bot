@@ -1,3 +1,4 @@
+// Formats a list of wishes into a Markdown string for Telegram
 const formatList = (wishes, title) => {
   const lines = wishes.map((w, i) =>
     [

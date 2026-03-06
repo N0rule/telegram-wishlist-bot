@@ -20,8 +20,8 @@
     "titleAll":  "Все желания",
     "titleUser": "Желания @{username}"
   },
-  "remove": {
-    "usage":    "⚠️ Использование: /remove <wish\\_id>",
+  "removeWish": {
+    "usage":    "⚠️ Использование: /removewish <wish\\_id>",
     "notFound": "❌ Нет желания с ID `{id}`.",
     "notOwner": "⛔ Вы можете удалять только свои желания.",
     "success":  "✅ Желание *\"{name}\"* удалено."

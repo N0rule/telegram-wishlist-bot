@@ -20,8 +20,8 @@
     "titleAll":  "All Wishes",
     "titleUser": "Wishes by @{username}"
   },
-  "remove": {
-    "usage":    "⚠️ Usage: /remove <wish\\_id>",
+  "removeWish": {
+    "usage":    "⚠️ Usage: /removewish <wish\\_id>",
     "notFound": "❌ No wish with ID `{id}`.",
     "notOwner": "⛔ You can only remove your own wishes.",
     "success":  "✅ Wish *\"{name}\"* removed."

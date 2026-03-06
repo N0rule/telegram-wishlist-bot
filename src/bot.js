@@ -30,5 +30,11 @@ const startBot = async () => {
 
 startBot();
 
-process.once('SIGINT',  () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.once('SIGINT',  () => {
+  log.info('🛑 Received SIGINT, stopping bot...');
+  bot.stop('SIGINT');
+});
+process.once('SIGTERM', () => {
+  log.info('🛑 Received SIGTERM, stopping bot...');
+  bot.stop('SIGTERM');
+});

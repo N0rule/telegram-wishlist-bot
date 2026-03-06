@@ -27,6 +27,7 @@ const newWishScene = new Scenes.WizardScene(
   // ── Step 0: Enter scene, ask for name ─────────────────────────────────────
   async (ctx) => {
     ctx.wizard.state.wish = {};
+    //log.info(`User ${ctx.from.id} (@${ctx.from.username}) started new wish creation`);
     await ctx.reply(t('newWish.stepName'), {
       parse_mode: 'Markdown',
       ...cancelOnly,
@@ -38,10 +39,14 @@ const newWishScene = new Scenes.WizardScene(
   async (ctx) => {
     if (ctx.callbackQuery) {
       await ctx.answerCbQuery();
-      if (ctx.callbackQuery.data === 'CANCEL') return leave(ctx, t('newWish.cancelled'));
+      if (ctx.callbackQuery.data === 'CANCEL') {
+        //log.info(`User ${ctx.from.id} (@${ctx.from.username}) cancelled wish creation at name step`);
+        return leave(ctx, t('newWish.cancelled'));
+      }
     }
     if (!ctx.message?.text) return ctx.reply(t('newWish.errName'));
     ctx.wizard.state.wish.name = ctx.message.text;
+    //log.info(`User ${ctx.from.id} (@${ctx.from.username}) set wish name: "${ctx.wizard.state.wish.name}"`);
     await ctx.reply(t('newWish.stepDescription'), {
       parse_mode: 'Markdown',
       ...cancelBtn,
@@ -53,10 +58,17 @@ const newWishScene = new Scenes.WizardScene(
   async (ctx) => {
     if (ctx.callbackQuery) {
       await ctx.answerCbQuery();
-      if (ctx.callbackQuery.data === 'CANCEL') return leave(ctx, t('newWish.cancelled'));
-      if (ctx.callbackQuery.data === 'SKIP') ctx.wizard.state.wish.description = null;
+      if (ctx.callbackQuery.data === 'CANCEL') {
+        //log.info(`User ${ctx.from.id} (@${ctx.from.username}) cancelled wish creation at description step`);
+        return leave(ctx, t('newWish.cancelled'));
+      }
+      if (ctx.callbackQuery.data === 'SKIP') {
+        ctx.wizard.state.wish.description = null;
+        //log.info(`User ${ctx.from.id} (@${ctx.from.username}) skipped description`);
+      }
     } else if (ctx.message?.text) {
       ctx.wizard.state.wish.description = ctx.message.text;
+      //log.info(`User ${ctx.from.id} (@${ctx.from.username}) set wish description: "${ctx.wizard.state.wish.description}"`);
     } else {
       return ctx.reply(t('newWish.errDescription'));
     }
@@ -72,11 +84,18 @@ const newWishScene = new Scenes.WizardScene(
   async (ctx) => {
     if (ctx.callbackQuery) {
       await ctx.answerCbQuery();
-      if (ctx.callbackQuery.data === 'CANCEL') return leave(ctx, t('newWish.cancelled'));
+      if (ctx.callbackQuery.data === 'CANCEL') {
+        //log.info(`User ${ctx.from.id} (@${ctx.from.username}) cancelled wish creation at photo step`);
+        return leave(ctx, t('newWish.cancelled'));
+      }
       // SKIP → photoId stays undefined → null below
+      if (ctx.callbackQuery.data === 'SKIP') {
+        //log.info(`User ${ctx.from.id} (@${ctx.from.username}) skipped photo`);
+      }
     } else if (ctx.message?.photo) {
       // Telegram sends multiple sizes; last = highest resolution
       ctx.wizard.state.wish.photoId = ctx.message.photo.at(-1).file_id;
+      //log.info(`User ${ctx.from.id} (@${ctx.from.username}) uploaded photo for wish`);
     } else if (ctx.message?.text !== '/skip') {
       return ctx.reply(t('newWish.errPhoto'));
     }
@@ -98,9 +117,10 @@ const newWishScene = new Scenes.WizardScene(
       // 2. Save to DB using messageId as the id
       const wish = createWish({ id: messageId, ...data });
       
+      log.ok(`User ${ctx.from.id} (@${ctx.from.username}) successfully created wish "${name}" (ID ${messageId})`);
       await ctx.reply(t('newWish.posted', { name, id: messageId }), { parse_mode: 'Markdown' });
     } catch (err) {
-    log.error('[newWish]', err.message);
+    log.error(`User ${ctx.from.id} (@${ctx.from.username}) failed to create wish "${name}": ${err.message}`);
     await ctx.reply(t('newWish.errPost'));
   }
 
