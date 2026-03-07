@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://n0rule.github.io/"><img src="wishlistbot.jpg" height="400" alt="Syndicate Bot V2"></a>
+  <a href="https://n0rule.github.io/"><img src="wishlistbot.jpg" height="400" alt="wishlistbot.jpg"></a>
   <br>
   Wishlist Bot
   <br>
