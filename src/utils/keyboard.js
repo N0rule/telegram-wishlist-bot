@@ -2,13 +2,13 @@ const { Markup } = require('telegraf');
 
 const PAGE_SIZE = 5;
 
+// ── Main menu — no remove button ───────────────────────────────────────────
 const mainMenu = (t) => Markup.inlineKeyboard([
   [Markup.button.callback(t('menu.btnNewWish'),  'MENU_NEWWISH')],
   [
     Markup.button.callback(t('menu.btnMyWishes'),  'MY_LIST:0'),
     Markup.button.callback(t('menu.btnAllWishes'), 'ALL_LIST:0'),
   ],
-  [Markup.button.callback(t('menu.btnRemove'), 'REMOVE_PAGE:0')],
 ]);
 
 const backRow = (t) => [Markup.button.callback(t('menu.btnBack'), 'MENU')];
@@ -20,33 +20,34 @@ const buildNavRow = (page, total, prevCb, nextCb, t) => {
   return row;
 };
 
-// View list — wish buttons do nothing (NOOP), just displayed
-const viewListKeyboard = (wishes, page, prefix, t) => {
+// ── My Wishes — each wish is tappable → triggers remove confirm ────────────
+const myWishesKeyboard = (wishes, page, t) => {
   const slice = wishes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const rows  = slice.map((w, i) => [
-    Markup.button.callback(`${page * PAGE_SIZE + i + 1}. ${w.name} (@${w.username})`, 'NOOP'),
+    Markup.button.callback(
+      `🗑 ${page * PAGE_SIZE + i + 1}. ${w.name}`,
+      `REMOVE_CONFIRM:${w.id}`
+    ),
   ]);
-  const nav = buildNavRow(page, wishes.length, `${prefix}:${page - 1}`, `${prefix}:${page + 1}`, t);
+  const nav = buildNavRow(page, wishes.length, `MY_LIST:${page - 1}`, `MY_LIST:${page + 1}`, t);
   if (nav.length) rows.push(nav);
   rows.push(backRow(t));
   return Markup.inlineKeyboard(rows);
 };
 
-// Remove list — tap a wish to get a confirm dialog
-const removeListKeyboard = (wishes, page, t) => {
-  const slice = wishes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-  const rows  = slice.map((w, i) => [
-    Markup.button.callback(`${page * PAGE_SIZE + i + 1}. ${w.name}`, `REMOVE_CONFIRM:${w.id}`),
-  ]);
-  const nav = buildNavRow(page, wishes.length, `REMOVE_PAGE:${page - 1}`, `REMOVE_PAGE:${page + 1}`, t);
+// ── All Wishes — no wish buttons, only pagination + back ──────────────────
+const allWishesKeyboard = (wishes, page, t) => {
+  const rows = [];
+  const nav  = buildNavRow(page, wishes.length, `ALL_LIST:${page - 1}`, `ALL_LIST:${page + 1}`, t);
   if (nav.length) rows.push(nav);
   rows.push(backRow(t));
   return Markup.inlineKeyboard(rows);
 };
 
+// ── Confirm remove dialog ──────────────────────────────────────────────────
 const confirmKeyboard = (wishId, t) => Markup.inlineKeyboard([[
   Markup.button.callback(t('menu.btnConfirmYes'), `REMOVE_DO:${wishId}`),
-  Markup.button.callback(t('menu.btnConfirmNo'),  'REMOVE_PAGE:0'),
+  Markup.button.callback(t('menu.btnConfirmNo'),  `MY_LIST:0`),
 ]]);
 
-module.exports = { PAGE_SIZE, mainMenu, viewListKeyboard, removeListKeyboard, confirmKeyboard, backRow };
+module.exports = { PAGE_SIZE, mainMenu, myWishesKeyboard, allWishesKeyboard, confirmKeyboard, backRow };

@@ -1,28 +1,45 @@
-const { Markup }                                     = require('telegraf');
-const { listWishes, getWishById, removeWish }        = require('../services/db');
-const { deleteWishPost }                             = require('../services/channelPoster');
-const { t }                                          = require('../utils/lang');
-const { createLogger }                               = require('../utils/logger');
-const { PAGE_SIZE, mainMenu, viewListKeyboard,
-        removeListKeyboard, confirmKeyboard, backRow } = require('../utils/keyboard');
+const { Markup }                                      = require('telegraf');
+const { listWishes, getWishById, removeWish }         = require('../services/db');
+const { deleteWishPost }                              = require('../services/channelPoster');
+const { t }                                           = require('../utils/lang');
+const { createLogger }                                = require('../utils/logger');
+const { PAGE_SIZE, mainMenu, myWishesKeyboard,
+        allWishesKeyboard, confirmKeyboard, backRow } = require('../utils/keyboard');
 
 const log = createLogger('menuHandler');
 
-const pageInfo = (page, total, t) =>
+const pageInfo = (page, total) =>
   `${t('menu.page')} ${page + 1}/${Math.max(1, Math.ceil(total / PAGE_SIZE))}`;
 
-const formatPage = (wishes, page, title, t) => {
+// My Wishes — each wish shows with number, name, optional description, id
+const formatMyPage = (wishes, page) => {
   const slice = wishes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const lines = slice.map((w, i) =>
-    [`*${page * PAGE_SIZE + i + 1}. ${w.name}*`, w.description ? `_${w.description}_` : null, `🆔 \`${w.id}\``]
-      .filter(Boolean).join('\n')
+    [
+      `*${page * PAGE_SIZE + i + 1}. ${w.name}*`,
+      w.description ? `· ${w.description}` : null,
+      `🆔 \`${w.id}\``,
+    ].filter(Boolean).join('\n')
   );
-  return `🎁 *${title}* — ${pageInfo(page, wishes.length, t)}\n\n${lines.join('\n\n')}`;
+  return `📋 *${t('list.titleMine')}* — ${pageInfo(page, wishes.length)}\n${t('menu.removeTip')}\n\n${lines.join('\n\n')}`;
+};
+
+// All Wishes — includes @username after wish name, no buttons per wish
+const formatAllPage = (wishes, page) => {
+  const slice = wishes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const lines = slice.map((w, i) =>
+    [
+      `*${page * PAGE_SIZE + i + 1}. ${w.name}* — @${w.username || w.userId}`,
+      w.description ? `· ${w.description}` : null,
+      `🆔 \`${w.id}\``,
+    ].filter(Boolean).join('\n')
+  );
+  return `🌍 *${t('list.titleAll')}* — ${pageInfo(page, wishes.length)}\n\n${lines.join('\n\n')}`;
 };
 
 const registerMenuHandlers = (bot) => {
 
-  // ── Main menu ──────────────────────────────────────────────────────────────
+  // ── Main menu ────────────────────────────────────────────────────────────
   bot.action('MENU', async (ctx) => {
     await ctx.answerCbQuery();
     await ctx.editMessageText(t('start.welcome'), {
@@ -31,14 +48,14 @@ const registerMenuHandlers = (bot) => {
     });
   });
 
-  // ── New wish from button ───────────────────────────────────────────────────
+  // ── New wish ─────────────────────────────────────────────────────────────
   bot.action('MENU_NEWWISH', async (ctx) => {
     await ctx.answerCbQuery();
     await ctx.deleteMessage();
     return ctx.scene.enter('NEW_WISH');
   });
 
-  // ── My wishes (view, paginated) ────────────────────────────────────────────
+  // ── My Wishes (tap wish → remove confirm) ────────────────────────────────
   bot.action(/^MY_LIST:(\d+)$/, async (ctx) => {
     await ctx.answerCbQuery();
     const page   = parseInt(ctx.match[1]);
@@ -50,12 +67,12 @@ const registerMenuHandlers = (bot) => {
       });
 
     await ctx.editMessageText(
-      formatPage(wishes, page, t('list.titleMine'), t),
-      { parse_mode: 'Markdown', ...viewListKeyboard(wishes, page, 'MY_LIST', t) }
+      formatMyPage(wishes, page),
+      { parse_mode: 'Markdown', ...myWishesKeyboard(wishes, page, t) }
     );
   });
 
-  // ── All wishes (view, paginated) ───────────────────────────────────────────
+  // ── All Wishes (no wish buttons, just text + pagination) ─────────────────
   bot.action(/^ALL_LIST:(\d+)$/, async (ctx) => {
     await ctx.answerCbQuery();
     const page   = parseInt(ctx.match[1]);
@@ -67,36 +84,19 @@ const registerMenuHandlers = (bot) => {
       });
 
     await ctx.editMessageText(
-      formatPage(wishes, page, t('list.titleAll'), t),
-      { parse_mode: 'Markdown', ...viewListKeyboard(wishes, page, 'ALL_LIST', t) }
+      formatAllPage(wishes, page),
+      { parse_mode: 'Markdown', ...allWishesKeyboard(wishes, page, t) }
     );
   });
 
-  // ── Remove — browse my wishes ──────────────────────────────────────────────
-  bot.action(/^REMOVE_PAGE:(\d+)$/, async (ctx) => {
-    await ctx.answerCbQuery();
-    const page   = parseInt(ctx.match[1]);
-    const wishes = listWishes(ctx.from.id);
-
-    if (!wishes.length)
-      return ctx.editMessageText(t('list.empty'), {
-        ...Markup.inlineKeyboard([backRow(t)]),
-      });
-
-    await ctx.editMessageText(
-      t('menu.removePrompt', { page: page + 1, total: Math.max(1, Math.ceil(wishes.length / PAGE_SIZE)) }),
-      { parse_mode: 'Markdown', ...removeListKeyboard(wishes, page, t) }
-    );
-  });
-
-  // ── Remove — confirm dialog ────────────────────────────────────────────────
+  // ── Remove confirm dialog ────────────────────────────────────────────────
   bot.action(/^REMOVE_CONFIRM:(\d+)$/, async (ctx) => {
     await ctx.answerCbQuery();
     const wish = getWishById(parseInt(ctx.match[1]));
 
     if (!wish)
       return ctx.editMessageText(t('removeWish.notFound', { id: ctx.match[1] }), {
-        parse_mode:  'Markdown',
+        parse_mode: 'Markdown',
         ...Markup.inlineKeyboard([backRow(t)]),
       });
 
@@ -106,7 +106,7 @@ const registerMenuHandlers = (bot) => {
     );
   });
 
-  // ── Remove — execute ───────────────────────────────────────────────────────
+  // ── Remove execute ───────────────────────────────────────────────────────
   bot.action(/^REMOVE_DO:(\d+)$/, async (ctx) => {
     await ctx.answerCbQuery();
     const wishId = parseInt(ctx.match[1]);
@@ -121,7 +121,7 @@ const registerMenuHandlers = (bot) => {
     removeWish(wishId, ctx.from.id);
     log.ok(`User ${ctx.from.id} removed wish "${wish.name}" (ID ${wishId})`);
 
-    // Refresh the remove list after deletion
+    // Go back to my wishes list after deletion
     const remaining = listWishes(ctx.from.id);
     if (!remaining.length)
       return ctx.editMessageText(
@@ -130,14 +130,11 @@ const registerMenuHandlers = (bot) => {
       );
 
     return ctx.editMessageText(
-      t('removeWish.success', { name: wish.name }) + '\n\n' +
-      t('menu.removePrompt', { page: 1, total: Math.max(1, Math.ceil(remaining.length / PAGE_SIZE)) }),
-      { parse_mode: 'Markdown', ...removeListKeyboard(remaining, 0, t) }
+      t('removeWish.success', { name: wish.name }) + '\n\n' + formatMyPage(remaining, 0),
+      { parse_mode: 'Markdown', ...myWishesKeyboard(remaining, 0, t) }
     );
   });
 
-  // ── No-op for display-only buttons ────────────────────────────────────────
-  bot.action('NOOP', (ctx) => ctx.answerCbQuery());
 };
 
 module.exports = { registerMenuHandlers };
