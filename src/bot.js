@@ -4,6 +4,8 @@ const { newWishScene }  = require('./scenes/newWish.scene');
 const { registerCommands } = require('./commands');
 const { auth } = require('./middleware/auth');
 const { checkChannel } = require('./services/channelPoster');
+const { t }        = require('./utils/lang');
+const { mainMenu } = require('./utils/keyboard');
 const { createLogger } = require('./utils/logger');
 const log = createLogger('bot');
 
@@ -21,6 +23,16 @@ bot.use(auth);
 
 // Register all commands
 registerCommands(bot);
+
+// catch-all: any plain text that isn't a command → show main menu
+bot.on('text', (ctx) => {
+  if (!ctx.message.text.startsWith('/')) {
+    ctx.reply(t('start.welcome'), {
+      parse_mode: 'Markdown',
+      ...mainMenu(t),
+    });
+  }
+});
 
 const startBot = async () => {
   log.info('🤖 Wishlist bot is running!');

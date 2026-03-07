@@ -9,7 +9,7 @@
     "errName":         "⚠️ Please type the wish name.",
     "errDescription":  "⚠️ Please send text or tap Skip.",
     "errPhoto":        "⚠️ Please send a photo or tap Skip.",
-    "posted":          "✅ Wish *\"{name}\"* posted!\n🆔 ID: `{id}`",
+    "posted":          "✅ Wish *\"{name}\"* posted to the channel! 🎁",
     "errPost":         "⚠️ Failed to post. Is the bot an admin in the channel?"
   },
   "list": {
@@ -34,5 +34,19 @@
     "by":    "👤 *By:* @{username}",
     "wish":  "📦 *Wish:* {name}",
     "about": "📝 *About:* {description}"
-  }
+  },
+  "menu": {
+  "btnNewWish":    "🎁 New Wish",
+  "btnMyWishes":   "📋 My Wishes",
+  "btnAllWishes":  "🌍 All Wishes",
+  "btnRemove":     "🗑 Remove Wish",
+  "btnPrev":       "⬅️ Prev",
+  "btnNext":       "Next ➡️",
+  "btnBack":       "🏠 Menu",
+  "btnConfirmYes": "✅ Yes, Remove",
+  "btnConfirmNo":  "❌ Cancel",
+  "page":          "Page",
+  "removePrompt":  "🗑 *Select a wish to remove* (Page {page}/{total}):\n\nTap any wish to remove it:",
+  "confirmRemove": "⚠️ Remove *\"{name}\"*?\n\nThis cannot be undone."
+}
 }

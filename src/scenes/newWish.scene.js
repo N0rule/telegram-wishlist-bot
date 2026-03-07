@@ -2,6 +2,7 @@ const { Scenes, Markup } = require('telegraf');
 const { createWish } = require('../services/db');
 const { postWish }   = require('../services/channelPoster');
 const { createLogger } = require('../utils/logger');
+const { mainMenu } = require('../utils/keyboard');
 const log = createLogger('newWish');
 const { t } = require('../utils/lang');
 
@@ -16,10 +17,20 @@ const cancelOnly = Markup.inlineKeyboard([[
 ]]);
 
 async function leave(ctx, msg) {
-  if (ctx.callbackQuery) await ctx.answerCbQuery();
-  await ctx.reply(msg);
+  if (ctx.callbackQuery) {
+    await ctx.answerCbQuery();
+    // ✅ edit the existing step message — no new message sent
+    return ctx.editMessageText(t('start.welcome'), {
+      parse_mode: 'Markdown',
+      ...mainMenu(t),
+    }).then(() => ctx.scene.leave());
+  }
+  // fallback for non-button cancel (unlikely but safe)
+  await ctx.reply(msg, { parse_mode: 'Markdown', ...mainMenu(t) });
   return ctx.scene.leave();
 }
+
+
 
 const newWishScene = new Scenes.WizardScene(
   'NEW_WISH',
@@ -111,18 +122,18 @@ const newWishScene = new Scenes.WizardScene(
     };
 
     try {
-      // 1. Post to channel first → get the message_id
       const messageId = await postWish(ctx.telegram, data);
+      createWish({ id: messageId, ...data });
 
-      // 2. Save to DB using messageId as the id
-      const wish = createWish({ id: messageId, ...data });
-      
-      log.ok(`User ${ctx.from.id} (@${ctx.from.username}) successfully created wish "${name}" (ID ${messageId})`);
-      await ctx.reply(t('newWish.posted', { name, id: messageId }), { parse_mode: 'Markdown' });
+      // ✅ no ID shown, menu buttons appear right after
+      await ctx.reply(t('newWish.posted', { name }), {
+        parse_mode: 'Markdown',
+        ...mainMenu(t),
+      });
     } catch (err) {
-    log.error(`User ${ctx.from.id} (@${ctx.from.username}) failed to create wish "${name}": ${err.message}`);
-    await ctx.reply(t('newWish.errPost'));
-  }
+      log.error(err.message);
+      await ctx.reply(t('newWish.errPost'));
+    }
 
     return ctx.scene.leave();
   }
