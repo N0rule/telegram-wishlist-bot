@@ -49,11 +49,11 @@ const registerMenuHandlers = (bot) => {
   });
 
   // ── New wish ─────────────────────────────────────────────────────────────
-  bot.action('MENU_NEWWISH', async (ctx) => {
-    await ctx.answerCbQuery();
-    await ctx.deleteMessage();
-    return ctx.scene.enter('NEW_WISH');
-  });
+bot.action('MENU_NEWWISH', async (ctx) => {
+  await ctx.answerCbQuery();
+  return ctx.scene.enter('NEW_WISH'); // ← just enter, no deleteMessage
+});
+
 
   // ── My Wishes (tap wish → remove confirm) ────────────────────────────────
   bot.action(/^MY_LIST:(\d+)$/, async (ctx) => {

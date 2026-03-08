@@ -35,16 +35,31 @@ async function leave(ctx, msg) {
 const newWishScene = new Scenes.WizardScene(
   'NEW_WISH',
 
-  // ── Step 0: Enter scene, ask for name ─────────────────────────────────────
-  async (ctx) => {
-    ctx.wizard.state.wish = {};
+// ── Step 0: Enter scene, ask for name ────────────────────────────────────
+async (ctx) => {
+  ctx.wizard.state.wish = {};
+
+  if (ctx.callbackQuery) {
     //log.info(`User ${ctx.from.id} (@${ctx.from.username}) started new wish creation`);
+    await ctx.answerCbQuery();
+    await ctx.editMessageText(t('newWish.stepName'), {
+      parse_mode: 'Markdown',
+      ...cancelOnly,
+    });
+  } else {
+    // came from /newwish command → send a new message
     await ctx.reply(t('newWish.stepName'), {
       parse_mode: 'Markdown',
       ...cancelOnly,
     });
-    return ctx.wizard.next();
-  },
+  }
+
+  return ctx.wizard.next();
+},
+
+
+
+
 
   // ── Step 1: Save name, ask for description ────────────────────────────────
   async (ctx) => {
