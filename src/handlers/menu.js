@@ -119,7 +119,7 @@ bot.action('MENU_NEWWISH', async (ctx) => {
 
     await deleteWishPost(ctx.telegram, wish.id);
     removeWish(wishId, ctx.from.id);
-    log.ok(`User ${ctx.from.id} removed wish "${wish.name}" (ID ${wishId})`);
+    log.ok(`User @${ctx.from.username} removed wish "${wish.name}" (ID ${wishId})`);
 
     // Go back to my wishes list after deletion
     const remaining = listWishes(ctx.from.id);

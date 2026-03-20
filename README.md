@@ -98,12 +98,24 @@ LOCALE=en
 | `ALLOWED_USERS` | Comma-separated Telegram user IDs |
 | `LOCALE` | `en`, `uk`, or `ru` |
 
-### 6. Run
+### 6. Run (optional local)
+
+Use this command to run the bot directly with Node.js if you prefer a local setup.
 
 ```bash
 npm start          # production
 npm run dev        # development with auto-restart (nodemon)
 ```
+
+### 7. Run using Docker Compose (recommended)
+
+For a more reliable, portable deployment, Docker Compose is recommended but optional.
+
+```bash
+docker compose up --build
+```
+
+Then navigate to your container logs or use `docker compose logs -f` to verify bot startup.
 
 ## Usage
 
