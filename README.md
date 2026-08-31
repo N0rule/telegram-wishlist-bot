@@ -61,7 +61,7 @@ wishlist-bot/
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/yourname/wishlist-bot.git
+git clone https://github.com/N0rule/telegram-wishlist-bot.git
 cd wishlist-bot
 npm install
 ```
